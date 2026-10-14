@@ -1,0 +1,50 @@
+---
+import type { GetStaticPaths, Page } from "astro";
+
+import PageHeader from "../../components/PageHeader.astro";
+import Pagination from "../../components/Pagination.astro";
+import PostCard from "../../components/PostCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { BLOG } from "../../config";
+import { getPublishedPosts, type Post } from "../../utils/posts";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getPublishedPosts();
+  return paginate(posts, { pageSize: BLOG.postsPerPage });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page<Post>;
+}
+
+const { page } = Astro.props;
+
+const title =
+  page.currentPage > 1 ? `博客 — 第 ${page.currentPage} 页` : "博客";
+---
+
+<BaseLayout title={title} description="有关技术、爱好、生活的文章">
+  <div class="wrap">
+    <PageHeader
+      eyebrow="Writing"
+      title="博客"
+      lede="我对世界的感受"
+    />
+
+    <div class="post-list">
+      {page.data.map((post) => <PostCard post={post} />)}
+    </div>
+
+    <Pagination page={page} label="Blog posts" />
+  </div>
+</BaseLayout>
+
+<style>
+  .post-list {
+    margin-top: var(--space-4);
+  }
+
+  .post-list :global(.post-card:last-child) {
+    border-bottom: none;
+  }
+</style>

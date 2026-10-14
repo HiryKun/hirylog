@@ -1,0 +1,135 @@
+/*
+ * Sumi — design tokens
+ *
+ * Colours are declared once with `light-dark()`. The active scheme is driven by
+ * the `color-scheme` property, so the manual theme toggle only has to set
+ * `data-theme` on <html>; with JavaScript disabled the root keeps `light dark`
+ * and the OS preference wins.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---- palette ------------------------------------------------------- */
+  /* washi (paper) */
+  --washi-100: #ffffff;
+  --washi-200: #faf8f5;
+  --washi-300: #f3f0ea;
+  --washi-400: #e8e4db;
+
+  /* sumi (ink) */
+  --sumi-100: #e9e7e1;
+  --sumi-400: #5a5854;
+  --sumi-700: #333333;
+  --sumi-800: #1a1a1a;
+  --sumi-900: #101114;
+  --sumi-950: #0b0c0e;
+
+  /* shu (vermilion) */
+  --shu-500: #c73e3a;
+  --shu-400: #c85a52;
+
+  /* ---- semantic colours ---------------------------------------------- */
+  --color-bg: light-dark(var(--washi-200), var(--sumi-800));
+  --color-bg-subtle: light-dark(var(--washi-300), var(--sumi-900));
+  --color-bg-raised: light-dark(var(--washi-100), #14161a);
+
+  --color-fg: light-dark(var(--sumi-800), var(--sumi-100));
+  --color-fg-muted: light-dark(var(--sumi-400), rgba(233, 231, 225, 0.62));
+  /* Faint still has to clear 4.5:1 against the page — it is used for tag links,
+     the contents heading and the footer, not just decoration. */
+  --color-fg-faint: light-dark(rgba(26, 26, 26, 0.62), rgba(233, 231, 225, 0.55));
+
+  --color-rule: light-dark(rgba(26, 26, 26, 0.14), rgba(233, 231, 225, 0.14));
+  --color-rule-strong: light-dark(rgba(26, 26, 26, 0.28), rgba(233, 231, 225, 0.28));
+
+  --color-accent: light-dark(var(--shu-500), var(--shu-400));
+  --color-accent-fg: light-dark(var(--washi-200), var(--sumi-950));
+
+  --color-selection-bg: var(--color-accent);
+  --color-selection-fg: var(--color-accent-fg);
+
+  /*
+   * The pixel field resolves these three by reading them off a probe element,
+   * which is what makes light-dark() collapse to a real colour.
+   *
+   * The two themes are mirror images of each other: a dark page gets near-black
+   * tiles under a dark seam, a light one gets paper tiles under a light seam.
+   * The seam sits only one step away from the tile, on purpose — the grid is a
+   * texture, not a pattern.
+   *
+   * The highlight is the page's own accent, mixed in rather than added on top,
+   * so it reads the same on either ground.
+   */
+  --field-tile: light-dark(var(--washi-200), var(--sumi-900));
+  --field-seam: light-dark(var(--washi-300), var(--sumi-800));
+  --field-accent: var(--color-accent);
+
+  /* ---- typography ---------------------------------------------------- */
+  --font-sans: "Source Han Sans SC", "Noto Sans SC", "Source Sans", "思源黑体",
+    "Microsoft YaHei", "PingFang SC", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+    Consolas, monospace;
+
+  --text-xs: 0.8125rem; /* 13px — mono labels */
+  --text-sm: 0.9375rem; /* 15px */
+  --text-base: 1rem;
+  --text-md: 1.0625rem; /* 17px — lede */
+  --text-lg: 1.1875rem; /* 19px — card titles */
+  --text-xl: clamp(1.5rem, 3vw, 2rem);
+  --text-2xl: clamp(2.125rem, 4.4vw, 3.375rem);
+  --text-hero: clamp(2.125rem, 10vw, 4rem);
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.65;
+  --leading-relaxed: 1.85;
+
+  --tracking-label: 0.14em;
+  --tracking-wide: 0.3em;
+  --tracking-hero: 0.08em;
+  --tracking-tight: 0;
+  --tracking-body: 0.02em; /* article body — CJK needs a little air */
+
+  /* ---- space & layout ------------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  --gutter: clamp(1.25rem, 5vw, 2.75rem);
+  --section-y: clamp(4.5rem, 10vw, 6.875rem);
+
+  --width-wide: 72.5rem; /* 1160px */
+  --width-prose: 46rem;
+
+  --radius: 2px;
+  --rule-width: 1px;
+
+  /* ---- motion -------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 140ms;
+  --duration-base: 260ms;
+  --duration-slow: 900ms;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}

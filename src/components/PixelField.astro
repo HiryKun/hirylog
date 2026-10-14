@@ -1,0 +1,156 @@
+---
+import { PIXEL, type PixelPattern } from "../config";
+
+interface Props {
+  variant?: "hero" | "divider";
+  /** Overrides PIXEL.cell for this instance, in CSS px. */
+  cell?: number;
+  /** Overrides PIXEL.zoom for this instance. */
+  zoom?: number;
+  /** Overrides PIXEL.radius for this instance, in CSS px. */
+  radius?: number;
+  /** Overrides PIXEL.pattern for this instance. */
+  pattern?: PixelPattern;
+  /** Overrides PIXEL.auto for this instance. */
+  auto?: boolean;
+  /** Set false to render only the static grid. */
+  enabled?: boolean;
+}
+
+const {
+  variant = "hero",
+  cell = PIXEL.cell,
+  zoom = PIXEL.zoom,
+  radius = PIXEL.radius,
+  pattern = PIXEL.pattern,
+  auto = PIXEL.auto,
+  enabled = true,
+} = Astro.props;
+---
+
+<div
+  class:list={["field", `field--${variant}`]}
+  data-pattern={pattern}
+  style={`--field-cell: ${cell}px`}
+>
+  {/* Painted first, and stays visible whenever the shader declines to start —
+      no WebGL2, or the visitor prefers reduced motion. */}
+  <div class="field__fallback" aria-hidden="true"></div>
+
+  {
+    enabled && (
+      <pixel-field
+        class="field__sim"
+        data-cell={String(cell)}
+        data-zoom={String(zoom)}
+        data-radius={String(radius)}
+        data-pattern={pattern}
+        data-auto={auto ? "1" : "0"}
+        aria-hidden="true"
+      />
+    )
+  }
+
+  <div class="field__content">
+    <slot />
+  </div>
+</div>
+
+{enabled && <script>import "../scripts/pixel-field";</script>}
+
+<style>
+  .field {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--field-seam);
+  }
+
+  .field--hero {
+    min-height: min(100svh, 46rem);
+  }
+
+  .field--divider {
+    height: 15rem;
+  }
+
+  .field__fallback {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    /* The same tiles the shader draws, without the shader: the seam colour as
+       the ground, and the tile colour masked into shape on top of it. */
+    background-color: var(--field-seam);
+  }
+
+  .field[data-pattern="square"] .field__fallback {
+    /* A seam-coloured ground with the top-left 2px of every cell — the
+       half-seam each tile gives up on the shared edge — in the tile colour. */
+    background-image:
+      linear-gradient(to right, var(--field-tile) 2px, transparent 2px),
+      linear-gradient(to bottom, var(--field-tile) 2px, transparent 2px);
+    background-size: var(--field-cell) var(--field-cell);
+  }
+
+  /*
+   * Shapes that need more than a grid layer their tiles through a mask: the
+   * tile colour on top, masked into shape. The mask carries geometry only and
+   * no colours, which is what keeps the theme tokens in charge of how it looks,
+   * and every tile is inset by 1px — half a seam — by construction.
+   */
+  .field[data-pattern="triangle"] .field__fallback::after,
+  .field[data-pattern="hexagon"] .field__fallback::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--field-tile);
+    mask-repeat: repeat;
+  }
+
+  /*
+   * Two cells square: in each row two triangles stand on the cells' bases and
+   * two hang down between them, the next row offset by half a cell — the same
+   * packing the shader draws. Sides are inset by 1px at the 38px default.
+   */
+  .field[data-pattern="triangle"] .field__fallback::after {
+    mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 76 76'><path fill='%23fff' d='M1.618 37L36.382 37L19 2.236Z M39.618 37L74.382 37L57 2.236Z M-17.382 1L17.382 1L0 35.764Z M20.618 1L55.382 1L38 35.764Z M58.618 1L93.382 1L76 35.764Z M-17.382 75L17.382 75L0 40.236Z M20.618 75L55.382 75L38 40.236Z M58.618 75L93.382 75L76 40.236Z M1.618 39L36.382 39L19 73.764Z M39.618 39L74.382 39L57 73.764Z'/></svg>");
+    mask-size: calc(2 * var(--field-cell)) calc(2 * var(--field-cell));
+  }
+
+  /*
+   * The flat-topped honeycomb: sqrt(3) cells wide and one cell tall holds five
+   * hexagons — the rest of the lattice is supplied by the neighbouring tiles,
+   * and a regular polygon is inset by scaling about its centre (its inradius
+   * goes from cell/2 to cell/2 - 1).
+   */
+  .field[data-pattern="hexagon"] .field__fallback::after {
+    mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 65.8179 38'><path fill='%23fff' d='M20.78 0L10.39 18L-10.39 18L-20.78 0L-10.39 -18L10.39 -18Z M20.78 38L10.39 56L-10.39 56L-20.78 38L-10.39 20L10.39 20Z M53.69 19L43.3 37L22.52 37L12.12 19L22.52 1L43.3 1Z M86.6 0L76.21 18L55.43 18L45.03 0L55.43 -18L76.21 -18Z M86.6 38L76.21 56L55.43 56L45.03 38L55.43 20L76.21 20Z'/></svg>");
+    mask-size: calc(1.7320508 * var(--field-cell)) var(--field-cell);
+  }
+
+  .field__sim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+  }
+
+  /* Grows to fill the band so that anything positioned against its edges lands
+     on the edge of the field rather than the edge of the text inside it. */
+  .field__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    /* Let the cursor reach the shader; children opt back in. */
+    pointer-events: none;
+  }
+
+  .field__content :global(a),
+  .field__content :global(button) {
+    pointer-events: auto;
+  }
+</style>
