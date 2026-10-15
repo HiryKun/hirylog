@@ -72,6 +72,24 @@ export const BLOG = {
 } as const;
 
 /**
+ * Article covers.
+ *
+ * Covers live on an image host rather than in the repository, so a post only
+ * stores a file name. `heroImage` may also hold a full URL — anything starting
+ * with http(s):// or // is used verbatim, which keeps one-off externals and
+ * builds without a configured host working.
+ */
+export const IMAGE = {
+  /**
+   * Image host prefix, with or without a trailing slash. Leave it empty to
+   * accept absolute URLs only.
+   */
+  baseUrl: "https://imgbed.hirykun.top/",
+  /** Cover box ratio, in `aspect-ratio` syntax. Covers are cropped to fit. */
+  coverAspect: "16 / 9",
+} as const;
+
+/**
  * The WebGL pixel field.
  *
  * A single full-screen shader draws a grid of flat pixels. The cursor spreads

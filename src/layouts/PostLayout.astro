@@ -1,13 +1,13 @@
 ---
 import type { MarkdownHeading } from "astro";
-import { Image } from "astro:assets";
 
 import "../styles/prose.css";
 
 import PostNav from "../components/PostNav.astro";
 import TableOfContents from "../components/TableOfContents.astro";
 import BaseLayout from "./BaseLayout.astro";
-import { BLOG, OG } from "../config";
+import { BLOG, IMAGE, OG } from "../config";
+import { coverUrl } from "../utils/cover";
 import { formatDateStamp, isoDate } from "../utils/date";
 import { readingTime } from "../utils/reading-time";
 import { tagSlug, type Post } from "../utils/posts";
@@ -78,13 +78,16 @@ const article = {
 
     {
       heroImage && (
-        <figure class="post__hero">
-          <Image
-            src={heroImage}
+        <figure
+          class="post__hero"
+          style={`--cover-aspect: ${IMAGE.coverAspect}`}
+        >
+          <img
+            src={coverUrl(heroImage)}
             alt={heroImageAlt ?? ""}
-            widths={[640, 960, 1280]}
-            sizes="(min-width: 60rem) 60rem, 100vw"
             loading="eager"
+            decoding="async"
+            fetchpriority="high"
           />
         </figure>
       )
@@ -141,6 +144,16 @@ const article = {
 
   .post__hero {
     margin-bottom: var(--space-12);
+  }
+
+  /* The image host owns the real pixels, so there is no intrinsic size to
+     reserve space with. The ratio box does it instead: the height is known
+     before the file arrives, and object-fit crops covers that do not match. */
+  .post__hero img {
+    width: 100%;
+    aspect-ratio: var(--cover-aspect, 16 / 9);
+    object-fit: cover;
+    background: var(--color-bg-subtle);
   }
 
   .post__grid {
