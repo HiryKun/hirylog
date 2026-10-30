@@ -84,7 +84,7 @@ export const IMAGE = {
    * Image host prefix, with or without a trailing slash. Leave it empty to
    * accept absolute URLs only.
    */
-  baseUrl: "https://imgbed.hirykun.top/",
+  baseUrl: "https://imgbed.hirykun.top/file/",
   /** Cover box ratio, in `aspect-ratio` syntax. Covers are cropped to fit. */
   coverAspect: "16 / 9",
 } as const;
