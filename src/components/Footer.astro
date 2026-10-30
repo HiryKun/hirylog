@@ -25,7 +25,17 @@ const year = new Date().getFullYear();
     </ul>
 
     <p class="site-footer__legal">
-      © {year} <a href={AUTHOR.url}>{AUTHOR.name}</a> · CC BY 4.0
+      <span class="site-footer__legal-item">
+        © {year} <a href={AUTHOR.url}>{AUTHOR.name}</a>
+      </span>
+      <span class="site-footer__legal-item">CC BY 4.0</span>
+      <span class="site-footer__legal-item">
+        <a
+          href="https://beian.miit.gov.cn/"
+          target="_blank"
+          rel="noopener noreferrer">豫ICP备2026054600号</a
+        >
+      </span>
     </p>
   </div>
 </footer>
@@ -70,9 +80,35 @@ const year = new Date().getFullYear();
     margin-left: auto;
   }
 
+  .site-footer__legal-item + .site-footer__legal-item::before {
+    content: "·";
+    margin-inline: 0.45em;
+  }
+
   @media (max-width: 40rem) {
+    .site-footer__inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-6);
+    }
+
     .site-footer__legal {
       margin-left: 0;
+      width: 100%;
+      letter-spacing: 0.05em;
+      line-height: var(--leading-normal);
+    }
+
+    .site-footer__legal-item {
+      display: block;
+    }
+
+    .site-footer__legal-item + .site-footer__legal-item {
+      margin-top: var(--space-2);
+    }
+
+    .site-footer__legal-item + .site-footer__legal-item::before {
+      content: none;
     }
   }
 </style>
