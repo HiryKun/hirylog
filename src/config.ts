@@ -19,7 +19,7 @@ export interface SocialLink {
 
 export const SITE = {
   /** Absolute origin of the deployed site. No trailing slash. */
-  url: "https://hirykun.com",
+  url: "https://www.hirykun.top",
   title: "HiryLog",
   /**
    * Short mark used for the vertical rail and the loading screen.
